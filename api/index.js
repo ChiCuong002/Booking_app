@@ -110,7 +110,7 @@ app.post('/upload', photosMiddleware.array('photos', 100), (req, res) => {
 })
 app.post('/places', async (req, res) => {
     const { token } = req.cookies
-    const { title, addedPhotos, address, description, perks, extra, checkIn, checkOut, maxGuest } = req.body
+    const { title, addedPhotos, address, description, perks, extra, checkIn, checkOut, maxGuest, price } = req.body
     let id
     jwt.verify(token, jwtSecret, {}, async (error, userInfo) => {
         if (error) throw error
@@ -126,7 +126,8 @@ app.post('/places', async (req, res) => {
         extraInfo: extra,
         checkIn,
         checkOut,
-        maxGuest
+        maxGuest,
+        price,
     })
     return res.json(placeDoc)
 })
@@ -144,7 +145,7 @@ app.get('/places/:id', async (req, res) => {
 })
 app.put('/places', async (req, res) => {
     const { token } = req.cookies
-    const { id, title, addedPhotos, address, description, perks, extra, checkIn, checkOut, maxGuest } = req.body
+    const { id, title, addedPhotos, address, description, perks, extra, checkIn, checkOut, maxGuest, price } = req.body
     jwt.verify(token, jwtSecret, {}, async (error, userData) => {
         if (error) throw error
         const placeDoc = await Place.findById(id);
@@ -158,11 +159,15 @@ app.put('/places', async (req, res) => {
                 extraInfo: extra,
                 checkIn,
                 checkOut,
-                maxGuest
+                maxGuest,
+                price,
             })
             placeDoc.save();
             res.json('ok')
         }
     })
+})
+app.get('/all-places', async (req, res) => {
+    res.json(await Place.find() )
 })
 app.listen(4000)

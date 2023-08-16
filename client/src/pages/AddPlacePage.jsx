@@ -7,7 +7,7 @@ import AccountNav from "../AccountNav";
 
 export default function AddPlacePage() {
     const {id} = useParams();
-    
+    const [price, setPrice] = useState('')
     const [addedPhotos, setAddedPhotos] = useState([]);
     const [title, setTitle] = useState('');
     const [address, setAddress] = useState('');
@@ -35,6 +35,7 @@ export default function AddPlacePage() {
                 setCheckIn(data.checkIn);
                 setCheckOut(data.checkOut);
                 setMaxGuest(data.maxGuest);
+                setPrice(data.price)
             })
         }
     }, [id])
@@ -56,12 +57,12 @@ export default function AddPlacePage() {
             //update 
             await axios.put('/places', {
                 id,
-                title, addedPhotos, address, description, perks, extra, checkIn, checkOut, maxGuest
+                title, addedPhotos, address, description, perks, extra, checkIn, checkOut, maxGuest, price
             })
 
         } else {
             //add new place
-            const placeData = { title, addedPhotos, address, description, perks, extra, checkIn, checkOut, maxGuest }
+            const placeData = { title, addedPhotos, address, description, perks, extra, checkIn, checkOut, maxGuest, price }
             const { data } = await axios.post('/places', placeData)
             setRedirectToPlacesList(true)
         }
@@ -89,6 +90,8 @@ export default function AddPlacePage() {
                 </div>
                 {preInput('Extra info', 'house rules, etc')}
                 <textarea value={extra} onChange={ev => setExtra(ev.target.value)} />
+                {preInput('Price, Price for your place')}
+                <input type="number" value={price} onChange={(ev) => setPrice(ev.target.value)}/>
                 {preInput('Check in&out time, max guests', 'add check in and out times')}
                 <div className="grid gap-2 sm:grid-cols-3">
                     <div>
