@@ -10,7 +10,8 @@ const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser')
 const imgDownLoader = require('image-downloader')
 const multer = require('multer')
-const fs = require('fs')
+const fs = require('fs');
+const Booking = require('./models/Booking');
 
 const bcryptSalt = bcrypt.genSaltSync(10)
 const jwtSecret = 'fasjlnanavjnwpaijapcjwmsapw'
@@ -168,6 +169,35 @@ app.put('/places', async (req, res) => {
     })
 })
 app.get('/all-places', async (req, res) => {
-    res.json(await Place.find() )
+    res.json(await Place.find())
+})
+app.post('/booking', (req, res) => {
+    const UserData = getUserDataFromToken(req.cookies.token)
+    const { place, checkIn, checkOut, numberOfGuests, name, phone, price } = req.body;
+    Booking.create({
+        place, checkIn, checkOut, numberOfGuests, name, phone, price, user: UserData.id
+    }).then((bookingDoc) => {
+        res.json(bookingDoc)
+    }).catch((err) => {
+        throw err;
+    })
+})
+
+function getUserDataFromToken(token) {
+    return new Promise((resolve, reject) => {
+        jwt.verify(token, jwtSecret, {}, async (error, userData) => {
+            if (error) throw error
+            resolve(userData)
+        });
+    })
+}
+
+app.get('/bookings', async (req, res) => {
+    const userData = await getUserDataFromToken(req.cookies.token)
+    res.json(await Booking.find({ user: userData._id }).populate({
+            path: 'place',
+            select: 'photos title',
+        })
+    )
 })
 app.listen(4000)
